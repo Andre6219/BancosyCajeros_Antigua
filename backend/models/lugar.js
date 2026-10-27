@@ -3,28 +3,32 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Lugar extends Model {
+
     static associate(models) {
-      Lugar.belongsTo(models.Entidad, {
-        foreignKey: 'entidad_id',
-        onDelete: 'RESTRICT'
-      });
+  Lugar.belongsTo(models.Entidad, {
+    foreignKey: 'entidad_id',
+    as: 'entidad',
+    onDelete: 'RESTRICT'
+  });
 
-      Lugar.belongsTo(models.Categoria, {
-        foreignKey: 'categoria_id',
-        onDelete: 'RESTRICT'
-      });
+  Lugar.belongsTo(models.Categoria, {
+    foreignKey: 'categoria_id',
+    as: 'categoria',
+    onDelete: 'RESTRICT'
+  });
 
-      Lugar.belongsTo(models.Ubicacion, {
-        foreignKey: 'ubicacion_id',
-        onDelete: 'RESTRICT'
-      });
+  Lugar.belongsTo(models.Ubicacion, {
+    foreignKey: 'ubicacion_id',
+    as: 'ubicacion',
+    onDelete: 'RESTRICT'
+  });
 
-      Lugar.belongsTo(models.Usuario, {
-        foreignKey: 'creado_por',
-        as: 'creador',
-        onDelete: 'RESTRICT'
-      });
-    }
+  Lugar.belongsTo(models.Usuario, {
+    foreignKey: 'creado_por',
+    as: 'creador',
+    onDelete: 'RESTRICT'
+  });
+}
   }
 
   Lugar.init({

@@ -5,11 +5,35 @@ const lugarController = require('../controllers/lugar.controller');
 const verificarToken = require('../middlewares/autenticacion');
 const autorizarRoles = require('../middlewares/autorizacion');
 
-router.put(
-  '/:id',
+// Consultas protegidas: requieren token y roles específicos.
+router.get('/mis-registros', verificarToken,autorizarRoles('registrador'),lugarController.misRegistros);
+
+router.get(
+  '/admin/pendientes',
   verificarToken,
-  autorizarRoles('administrador', 'registrador'),
-  lugarController.actualizar
+  autorizarRoles('administrador'),
+  lugarController.listarPendientes
 );
+
+router.patch(
+  '/:id/revision',
+  verificarToken,
+  autorizarRoles('administrador'),
+  lugarController.aprobar
+);
+
+router.patch(
+  '/:id/estado',
+  verificarToken,
+  autorizarRoles('administrador'),
+  lugarController.cambiarEstado
+);
+
+// Consultas públicas: no requieren token.
+router.get('/', lugarController.listarPublicos);
+router.get('/:id', lugarController.obtenerPublicoPorId);
+
+router.post('/',verificarToken,autorizarRoles('administrador', 'registrador'),lugarController.crear);
+router.put('/:id',verificarToken, autorizarRoles('administrador', 'registrador'),lugarController.actualizar);
 
 module.exports = router;
