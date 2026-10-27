@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Lugares', {
+    await queryInterface.createTable('lugares', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,54 +10,70 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       nombre: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
-      entidad: {
-        type: Sequelize.STRING
-      },
-      tipo: {
-        type: Sequelize.STRING
+      entidad_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'entidades',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT'
       },
       categoria_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'categorias',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT'
       },
-      descripcion: {
-        type: Sequelize.TEXT
+      tipo: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
-      departamento: {
-        type: Sequelize.STRING
-      },
-      municipio: {
-        type: Sequelize.STRING
+      ubicacion_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'ubicaciones',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT'
       },
       direccion: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       latitud: {
         type: Sequelize.DECIMAL(10, 7),
-        allowNull: true
+        allowNull: false
       },
       longitud: {
         type: Sequelize.DECIMAL(10, 7),
-        allowNull: true
-      },
-      enlace_maps: {
-        type: Sequelize.STRING
-      },
-      telefono: {
-        type: Sequelize.STRING
-      },
-      sitio_web: {
-        type: Sequelize.STRING
+        allowNull: false
       },
       creado_por: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'usuarios',
+          key: 'id'
+        },
+        onDelete: 'RESTRICT'
       },
       estado_revision: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'pendiente'
       },
       activo: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
       },
       createdAt: {
         allowNull: false,
@@ -69,7 +85,8 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Lugares');
+    await queryInterface.dropTable('lugares');
   }
 };

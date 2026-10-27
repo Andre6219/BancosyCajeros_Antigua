@@ -13,10 +13,7 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
+      ssl: false
     },
     logging: false
   },
@@ -28,10 +25,7 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
+      ssl: false
     },
     logging: false
   },
@@ -43,10 +37,7 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
+      ssl: false
     },
     logging: false
   }
