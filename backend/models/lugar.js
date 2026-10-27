@@ -1,41 +1,115 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Lugar extends Model {
     static associate(models) {
-      // define association here
+      Lugar.belongsTo(models.Entidad, {
+        foreignKey: 'entidad_id',
+        onDelete: 'RESTRICT'
+      });
+
+      Lugar.belongsTo(models.Categoria, {
+        foreignKey: 'categoria_id',
+        onDelete: 'RESTRICT'
+      });
+
+      Lugar.belongsTo(models.Ubicacion, {
+        foreignKey: 'ubicacion_id',
+        onDelete: 'RESTRICT'
+      });
+
+      Lugar.belongsTo(models.Usuario, {
+        foreignKey: 'creado_por',
+        as: 'creador',
+        onDelete: 'RESTRICT'
+      });
     }
   }
+
   Lugar.init({
-    nombre: DataTypes.STRING,
-    entidad: DataTypes.STRING,
-    tipo: DataTypes.STRING,
-    categoria_id: DataTypes.INTEGER,
-    descripcion: DataTypes.TEXT,
-    departamento: DataTypes.STRING,
-    municipio: DataTypes.STRING,
-    direccion: DataTypes.STRING,
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    entidad_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'entidades',
+        key: 'id'
+      }
+    },
+    categoria_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'categorias',
+        key: 'id'
+      }
+    },
+    tipo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [['agencia', 'cajero']]
+      }
+    },
+    ubicacion_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'ubicaciones',
+        key: 'id'
+      }
+    },
+    direccion: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     latitud: {
       type: DataTypes.DECIMAL(10, 7),
-      allowNull: true
+      allowNull: false,
+      validate: {
+        min: -90,
+        max: 90
+      }
     },
     longitud: {
       type: DataTypes.DECIMAL(10, 7),
-      allowNull: true
+      allowNull: false,
+      validate: {
+        min: -180,
+        max: 180
+      }
     },
-    enlace_maps: DataTypes.STRING,
-    telefono: DataTypes.STRING,
-    sitio_web: DataTypes.STRING,
-    creado_por: DataTypes.INTEGER,
-    estado_revision: DataTypes.STRING,
-    activo: DataTypes.BOOLEAN
+    creado_por: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'usuarios',
+        key: 'id'
+      }
+    },
+    estado_revision: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'pendiente',
+      validate: {
+        isIn: [['pendiente', 'aprobado']]
+      }
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    }
   }, {
     sequelize,
     modelName: 'Lugar',
-    tableName: 'Lugares',
+    tableName: 'lugares',
     timestamps: true
   });
+
   return Lugar;
 };
