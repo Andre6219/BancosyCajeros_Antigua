@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth.routes');
 const lugarRoutes = require('./routes/lugar.routes');
+const categoriaRoutes = require('./routes/categoria.routes');
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 
 // Operaciones de lugares.
+app.use('/api/categorias', categoriaRoutes);
 app.use('/api/lugares', lugarRoutes);
 
 // Respuesta para direcciones que no existen
