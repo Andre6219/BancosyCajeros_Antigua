@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bancos y Cajeros - Antigua Guatemala</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar Colonial -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-antigua sticky-top shadow">
+    <div class="container">
+      <a class="navbar-brand fs-4" href="index.html">
+        <i class="bi bi-geo-alt-fill text-warning me-2"></i> Antigua Servicios
+      </a>
+      <div class="ms-auto">
+        <a href="login.html" class="btn btn-antigua-secondary btn-sm shadow-sm">
+          <i class="bi bi-person-lock me-1"></i> Acceso Admin
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Banner con Imagen Cultural del Arco de Antigua -->
+  <header class="hero-antigua text-white text-center py-5 shadow-lg">
+    <div class="container py-4">
+      <h1 class="display-4 fw-bold mb-2">Lugares y Servicios en Antigua Guatemala</h1>
+      <p class="lead opacity-90 fs-5">Encuentra agencias bancarias, cajeros automáticos, hoteles y sitios de interés local.</p>
+    </div>
+  </header>
+
+  <!-- Buscador y Filtros -->
+  <main class="container my-4 flex-grow-1">
+    <div class="card card-antigua mb-4">
+      <div class="card-body p-4">
+        <form id="search-form" class="row g-3">
+          <div class="col-md-4">
+            <label for="search-input" class="form-label fw-semibold">Búsqueda General</label>
+            <input type="text" id="search-input" class="form-control" placeholder="Ej. Banrural, Central, Agencia...">
+          </div>
+          <div class="col-md-3">
+            <label for="category-select" class="form-label fw-semibold">Categoría</label>
+            <select id="category-select" class="form-select">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="entity-select" class="form-label fw-semibold">Entidad</label>
+            <select id="entity-select" class="form-select">
+              <option value="">Todas las entidades</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-antigua-primary w-100 shadow-sm">
+              <i class="bi bi-search me-1"></i> Buscar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="loading-spinner" class="text-center my-5 d-none">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <div class="row g-4" id="places-container"></div>
+  </main>
+
+  <footer class="navbar-antigua text-white text-center py-3 mt-auto">
+    <div class="container">
+      <p class="mb-0 small">&copy; 2026 Registro de Lugares y Servicios - La Antigua Guatemala.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

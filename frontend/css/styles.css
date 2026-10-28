@@ -1,0 +1,134 @@
+/* Importar tipografías elegantes desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --antigua-yellow: #DEAF35; /* Amarillo Arco */
+  --antigua-red: #BA3829;    /* Rojo Maya */
+  --antigua-blue: #2E6CBA;   /* Azul Textil */
+  --antigua-volcano: #2B2D2F;/* Gris Volcán Oscuro */
+  --antigua-cream: #FDFBF7;  /* Crema Pared Colonial */
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--antigua-cream);
+  color: var(--antigua-volcano);
+}
+
+h1, h2, h3, .navbar-brand {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Navbar */
+.navbar-antigua {
+  background-color: var(--antigua-volcano) !important;
+  border-bottom: 3px solid var(--antigua-yellow);
+}
+
+/* Banner Principal con Imagen del Arco de Antigua */
+.hero-antigua {
+  background: linear-gradient(rgba(43, 45, 47, 0.75), rgba(43, 45, 47, 0.85)), 
+              url('https://images.unsplash.com/photo-1596489467290-7f5dd697e82b?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+  border-bottom: 4px solid var(--antigua-yellow);
+}
+
+/* Botones con colores representativos */
+.btn-antigua-primary {
+  background-color: var(--antigua-red);
+  color: #fff;
+  border: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-antigua-primary:hover {
+  background-color: #962c1f;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-antigua-secondary {
+  background-color: var(--antigua-yellow);
+  color: var(--antigua-volcano);
+  border: none;
+  font-weight: 600;
+}
+
+.btn-antigua-secondary:hover {
+  background-color: #c4992b;
+  color: var(--antigua-volcano);
+}
+
+.btn-antigua-blue {
+  background-color: var(--antigua-blue);
+  color: #fff;
+  border: none;
+}
+
+.btn-antigua-blue:hover {
+  background-color: #21518f;
+  color: #fff;
+}
+
+/* Tarjetas */
+.card-antigua {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-antigua:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-header-antigua {
+  background-color: var(--antigua-volcano);
+  color: #fff;
+  border-bottom: 3px solid var(--antigua-yellow);
+}
+
+/* Pantalla Login */
+.login-bg {
+  background: linear-gradient(rgba(43, 45, 47, 0.65), rgba(43, 45, 47, 0.85)), 
+              url('https://images.unsplash.com/photo-1596489467290-7f5dd697e82b?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border-top: 5px solid var(--antigua-yellow);
+}
+
+.badge-antigua {
+  background-color: var(--antigua-blue);
+}
+
+/* Pantalla de Inicio de Sesión con Imagen Local */
+body.login-bg {
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), 
+              url('../img/antigua-bg.jpg') center/cover no-repeat fixed !important;
+}
+
+/* Banner Hero Principal (index.html) */
+.hero-antigua {
+  background: linear-gradient(rgba(43, 45, 47, 0.75), rgba(43, 45, 47, 0.85)), 
+              url('../img/antigua-bg.jpg') center/cover no-repeat !important;
+  border-bottom: 4px solid var(--antigua-yellow);
+}
+/* Fondo Cultural para el Panel Admin */
+body.admin-bg {
+  background: linear-gradient(rgba(253, 251, 247, 0.88), rgba(253, 251, 247, 0.92)),
+              url('../img/admin-bg.jpg') center/cover repeat fixed !important;
+}
+
+/* Efecto de elevación en las tarjetas del admin para contrastar con el fondo */
+.admin-bg .card-antigua {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(222, 175, 53, 0.3) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
