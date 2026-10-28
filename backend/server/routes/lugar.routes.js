@@ -9,6 +9,13 @@ const autorizarRoles = require('../middlewares/autorizacion');
 router.get('/mis-registros', verificarToken,autorizarRoles('registrador'),lugarController.misRegistros);
 
 router.get(
+  '/admin/todos',
+  verificarToken,
+  autorizarRoles('administrador'),
+  lugarController.adminListarTodos
+);
+
+router.get(
   '/admin/pendientes',
   verificarToken,
   autorizarRoles('administrador'),

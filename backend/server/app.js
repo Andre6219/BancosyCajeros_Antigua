@@ -67,8 +67,4 @@ app.use((error, req, res, next) => {
   });
 });
 
-const lugarRoutes = require('./routes/lugar.routes');
-
-app.use('/api/lugares', lugarRoutes);
-
 module.exports = app;

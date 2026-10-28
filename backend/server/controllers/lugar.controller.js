@@ -584,6 +584,50 @@ exports.listarPendientes = async (req, res) => {
   }
 };
 
+
+exports.adminListarTodos = async (req, res) => {
+  try {
+    const registros = await Lugar.findAll({
+      attributes: [
+        'id',
+        'nombre',
+        'entidad_id',
+        'categoria_id',
+        'tipo',
+        'ubicacion_id',
+        'direccion',
+        'latitud',
+        'longitud',
+        'creado_por',
+        'estado_revision',
+        'activo',
+        'createdAt',
+        'updatedAt'
+      ],
+      include: [
+        ...incluirDatosRelacionados,
+        {
+          model: Usuario,
+          as: 'creador',
+          attributes: ['id', 'nombre', 'email']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    return res.status(200).json({
+      total: registros.length,
+      registros
+    });
+  } catch (error) {
+    console.error('Error al listar todos los lugares para admin:', error.name);
+
+    return res.status(500).json({
+      message: 'Error interno al consultar todos los lugares'
+    });
+  }
+};
+
 // PATCH /api/lugares/:id/revision
 // El administrador aprueba un registro pendiente.
 exports.aprobar = async (req, res) => {
