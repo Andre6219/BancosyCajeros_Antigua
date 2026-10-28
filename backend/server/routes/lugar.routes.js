@@ -6,6 +6,13 @@ const verificarToken = require('../middlewares/autenticacion');
 const autorizarRoles = require('../middlewares/autorizacion');
 
 // Consultas protegidas: requieren token y roles específicos.
+router.post(
+  '/verificar-duplicados',
+  verificarToken,
+  autorizarRoles('administrador', 'registrador'),
+  lugarController.verificarDuplicados
+);
+
 router.get('/mis-registros', verificarToken,autorizarRoles('registrador'),lugarController.misRegistros);
 
 router.get(
