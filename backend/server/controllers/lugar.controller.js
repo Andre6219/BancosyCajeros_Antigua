@@ -57,22 +57,12 @@ const prepararLugarPublico = (lugar) => {
 // Filtros opcionales: ?tipo=agencia y ?q=banco
 exports.listarPublicos = async (req, res) => {
   try {
-    const { tipo, q, categoria_id } = req.query;
+    const { tipo, q } = req.query;
 
     if (tipo !== undefined && !['agencia', 'cajero'].includes(tipo)) {
       return res.status(400).json({
         message: 'El filtro tipo debe ser agencia o cajero'
       });
-    }
-
-    let categoriaId = null;
-    if (categoria_id !== undefined) {
-      categoriaId = Number(categoria_id);
-      if (!Number.isSafeInteger(categoriaId) || categoriaId <= 0) {
-        return res.status(400).json({
-          message: 'El filtro categoria_id debe ser un entero positivo'
-        });
-      }
     }
 
     if (
@@ -91,10 +81,6 @@ exports.listarPublicos = async (req, res) => {
 
     if (tipo) {
       where.tipo = tipo;
-    }
-
-    if (categoriaId !== null) {
-      where.categoria_id = categoriaId;
     }
 
     if (q && q.trim() !== '') {
@@ -356,9 +342,9 @@ exports.crear = async (req, res) => {
       })
     ]);
 
-    if (!entidad || !categoria || !categoria.activo || !ubicacion) {
+    if (!entidad || !categoria || !ubicacion) {
       return res.status(400).json({
-        message: 'La entidad, categoría activa o ubicación no es válida'
+        message: 'La entidad, categoría o ubicación no es válida'
       });
     }
 
@@ -598,7 +584,6 @@ exports.actualizar = async (req, res) => {
     if (
       !entidad ||
       !categoria ||
-      (cambios.categoria_id !== undefined && !categoria.activo) ||
       !ubicacion
     ) {
       return res.status(400).json({
