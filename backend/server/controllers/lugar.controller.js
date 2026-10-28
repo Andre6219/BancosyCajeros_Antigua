@@ -587,7 +587,7 @@ exports.actualizar = async (req, res) => {
       !ubicacion
     ) {
       return res.status(400).json({
-        message: 'La entidad, categoría activa o ubicación no es válida'
+        message: 'La entidad, categoría o ubicación no es válida'
       });
     }
 
