@@ -3,6 +3,8 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth.routes');
 const lugarRoutes = require('./routes/lugar.routes');
+const entidadRoutes = require('./routes/entidad.routes');
+const ubicacionRoutes = require('./routes/ubicacion.routes');
 
 const app = express();
 
@@ -28,6 +30,10 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+
+// Opciones y operaciones de lugares y entidades.
+app.use('/api/entidades', entidadRoutes);
+app.use('/api/ubicaciones', ubicacionRoutes);
 app.use('/api/lugares', lugarRoutes);
 
 app.use((req, res) => {
