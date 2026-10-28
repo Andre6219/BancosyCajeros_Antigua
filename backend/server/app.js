@@ -6,8 +6,6 @@ const lugarRoutes = require('./routes/lugar.routes');
 
 const app = express();
 
-// Utiliza el origen configurado en .env
-// Mientras trabajan localmente, el valor predeterminado es Angular
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || 'http://localhost:4200',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -29,20 +27,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Inicio de sesión, perfil y creación de registradores.
 app.use('/api/auth', authRoutes);
-
-// Operaciones de lugares.
 app.use('/api/lugares', lugarRoutes);
 
-// Respuesta para direcciones que no existen
 app.use((req, res) => {
   return res.status(404).json({
     message: 'Ruta no encontrada'
   });
 });
 
-// Manejo general de errores
 app.use((error, req, res, next) => {
   if (res.headersSent) {
     return next(error);
@@ -66,9 +59,5 @@ app.use((error, req, res, next) => {
     message: 'Error interno del servidor'
   });
 });
-
-const lugarRoutes = require('./routes/lugar.routes');
-
-app.use('/api/lugares', lugarRoutes);
 
 module.exports = app;
