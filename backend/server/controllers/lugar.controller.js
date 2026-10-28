@@ -1,6 +1,10 @@
 const { Op } = require('sequelize');
 const estaDentroDeAntigua = require('../validar-antigua');
 const {
+  buscarPosiblesDuplicados,
+  DISTANCIA_DUPLICADO_METROS
+} = require('../detectar-duplicados');
+const {
   Lugar,
   Entidad,
   Categoria,
@@ -10,6 +14,15 @@ const {
 
 //lugar.controller devuelve los lugares públicos aprobados y activos, con filtros opcionales de tipo y texto de búsqueda. También permite obtener el detalle de un lugar específico por su ID, siempre que esté aprobado y activo.
 //genera el enlace de Google Maps usando las coordenadas de latitud y longitud del lugar.
+
+const responderPosiblesDuplicados = (res, posiblesDuplicados) =>
+  res.status(409).json({
+    code: 'POSIBLES_DUPLICADOS',
+    message:
+      'Se encontraron lugares que podrían ser duplicados. Revísalos y confirma si deseas continuar.',
+    distancia_umbral_metros: DISTANCIA_DUPLICADO_METROS,
+    posiblesDuplicados
+  });
 
 const incluirDatosRelacionados = [
   {
@@ -171,6 +184,80 @@ exports.obtenerPublicoPorId = async (req, res) => {
   }
 };
 
+// POST /api/lugares/verificar-duplicados
+// Comprueba posibles coincidencias sin guardar el lugar.
+exports.verificarDuplicados = async (req, res) => {
+  try {
+    const cuerpo = req.body || {};
+    const entidadId = Number(cuerpo.entidad_id);
+    const latitud = Number(cuerpo.latitud);
+    const longitud = Number(cuerpo.longitud);
+    const { nombre, direccion, tipo } = cuerpo;
+
+    if (
+      !Number.isSafeInteger(entidadId) ||
+      entidadId <= 0 ||
+      typeof nombre !== 'string' ||
+      nombre.trim() === '' ||
+      nombre.trim().length > 255 ||
+      typeof direccion !== 'string' ||
+      direccion.trim() === '' ||
+      direccion.trim().length > 255 ||
+      !['agencia', 'cajero'].includes(tipo) ||
+      cuerpo.latitud === '' ||
+      cuerpo.longitud === '' ||
+      !Number.isFinite(latitud) ||
+      latitud < -90 ||
+      latitud > 90 ||
+      !Number.isFinite(longitud) ||
+      longitud < -180 ||
+      longitud > 180
+    ) {
+      return res.status(400).json({
+        message: 'Envía entidad, tipo, nombre, dirección y coordenadas válidas'
+      });
+    }
+
+    if (!estaDentroDeAntigua(latitud, longitud)) {
+      return res.status(400).json({
+        message: 'Las coordenadas deben estar dentro del municipio de Antigua Guatemala'
+      });
+    }
+
+    const entidad = await Entidad.findByPk(entidadId);
+    if (!entidad) {
+      return res.status(400).json({
+        message: 'La entidad bancaria no existe'
+      });
+    }
+
+    const posiblesDuplicados = await buscarPosiblesDuplicados({
+      Lugar,
+      Entidad,
+      datos: {
+        entidad_id: entidadId,
+        tipo,
+        nombre: nombre.trim(),
+        direccion: direccion.trim(),
+        latitud,
+        longitud
+      }
+    });
+
+    return res.status(200).json({
+      total: posiblesDuplicados.length,
+      requiere_confirmacion: posiblesDuplicados.length > 0,
+      distancia_umbral_metros: DISTANCIA_DUPLICADO_METROS,
+      posiblesDuplicados
+    });
+  } catch (error) {
+    console.error('Error al revisar duplicados:', error.name);
+    return res.status(500).json({
+      message: 'Error interno al revisar posibles duplicados'
+    });
+  }
+};
+
 // POST /api/lugares 
 // El administrador crea lugares aprobados 
 // El registrador crea lugares pendientes 
@@ -192,7 +279,8 @@ exports.crear = async (req, res) => {
       tipo,
       direccion,
       latitud,
-      longitud
+      longitud,
+      confirmar_posible_duplicado
     } = req.body || {};
 
     const entidadId = Number(entidad_id);
@@ -200,6 +288,15 @@ exports.crear = async (req, res) => {
     const ubicacionId = Number(ubicacion_id);
     const lat = Number(latitud);
     const lng = Number(longitud);
+
+    if (
+      confirmar_posible_duplicado !== undefined &&
+      typeof confirmar_posible_duplicado !== 'boolean'
+    ) {
+      return res.status(400).json({
+        message: 'confirmar_posible_duplicado debe ser true o false'
+      });
+    }
 
     if (
       typeof nombre !== 'string' ||
@@ -247,8 +344,28 @@ exports.crear = async (req, res) => {
 
     if (!entidad || !categoria || !ubicacion) {
       return res.status(400).json({
-        message: 'La entidad, categoría o ubicación no existe'
+        message: 'La entidad, categoría o ubicación no es válida'
       });
+    }
+
+    const posiblesDuplicados = await buscarPosiblesDuplicados({
+      Lugar,
+      Entidad,
+      datos: {
+        entidad_id: entidadId,
+        tipo,
+        nombre: nombre.trim(),
+        direccion: direccion.trim(),
+        latitud: lat,
+        longitud: lng
+      }
+    });
+
+    if (
+      posiblesDuplicados.length > 0 &&
+      confirmar_posible_duplicado !== true
+    ) {
+      return responderPosiblesDuplicados(res, posiblesDuplicados);
     }
 
     const lugar = await Lugar.create({
@@ -338,7 +455,8 @@ exports.actualizar = async (req, res) => {
       'tipo',
       'direccion',
       'latitud',
-      'longitud'
+      'longitud',
+      'confirmar_posible_duplicado'
     ];
 
     const camposRecibidos = Object.keys(cuerpo);
@@ -353,9 +471,22 @@ exports.actualizar = async (req, res) => {
       });
     }
 
-    if (camposRecibidos.length === 0) {
+    const confirmarPosibleDuplicado = cuerpo.confirmar_posible_duplicado;
+    if (
+      confirmarPosibleDuplicado !== undefined &&
+      typeof confirmarPosibleDuplicado !== 'boolean'
+    ) {
       return res.status(400).json({
-        message: 'Envía al menos un campo para actualizar'
+        message: 'confirmar_posible_duplicado debe ser true o false'
+      });
+    }
+
+    const camposDeLugar = camposRecibidos.filter(
+      (campo) => campo !== 'confirmar_posible_duplicado'
+    );
+    if (camposDeLugar.length === 0) {
+      return res.status(400).json({
+        message: 'Envía al menos un campo del lugar para actualizar'
       });
     }
 
@@ -450,10 +581,49 @@ exports.actualizar = async (req, res) => {
       })
     ]);
 
-    if (!entidad || !categoria || !ubicacion) {
+    if (
+      !entidad ||
+      !categoria ||
+      !ubicacion
+    ) {
       return res.status(400).json({
         message: 'La entidad, categoría o ubicación no es válida'
       });
+    }
+
+    const camposQueAfectanDuplicados = [
+      'nombre',
+      'entidad_id',
+      'tipo',
+      'direccion',
+      'latitud',
+      'longitud'
+    ];
+    const debeRevisarDuplicados = camposQueAfectanDuplicados.some((campo) =>
+      Object.prototype.hasOwnProperty.call(cuerpo, campo)
+    );
+
+    if (debeRevisarDuplicados) {
+      const posiblesDuplicados = await buscarPosiblesDuplicados({
+        Lugar,
+        Entidad,
+        excluirId: id,
+        datos: {
+          entidad_id: cambios.entidad_id ?? lugar.entidad_id,
+          tipo: cambios.tipo ?? lugar.tipo,
+          nombre: cambios.nombre ?? lugar.nombre,
+          direccion: cambios.direccion ?? lugar.direccion,
+          latitud: latitudFinal,
+          longitud: longitudFinal
+        }
+      });
+
+      if (
+        posiblesDuplicados.length > 0 &&
+        confirmarPosibleDuplicado !== true
+      ) {
+        return responderPosiblesDuplicados(res, posiblesDuplicados);
+      }
     }
 
     // Repetimos las condiciones del registrador en la actualización.
