@@ -1,6 +1,5 @@
 const path = require('path');
 
-// Carga backend/.env independientemente de dónde ejecutes Node
 require('dotenv').config({
   path: path.resolve(__dirname, '../.env')
 });
@@ -20,7 +19,6 @@ async function iniciarServidor() {
       throw new Error('PORT debe ser un entero entre 1 y 65535');
     }
 
-    // Comprueba la conexión sin crear ni modificar tablas.
     await db.sequelize.authenticate();
     console.log('Conexión a PostgreSQL correcta');
 

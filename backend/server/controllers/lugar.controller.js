@@ -7,9 +7,6 @@ const {
   Usuario
 } = require('../../models');
 
-//lugar.controller devuelve los lugares públicos aprobados y activos, con filtros opcionales de tipo y texto de búsqueda. También permite obtener el detalle de un lugar específico por su ID, siempre que esté aprobado y activo.
-//genera el enlace de Google Maps usando las coordenadas de latitud y longitud del lugar.
-
 const incluirDatosRelacionados = [
   {
     model: Entidad,
@@ -28,7 +25,6 @@ const incluirDatosRelacionados = [
   }
 ];
 
-// Convierte el registro en datos públicos y genera su enlace de Maps.
 const prepararLugarPublico = (lugar) => {
   const datos = lugar.toJSON();
 
@@ -38,9 +34,6 @@ const prepararLugarPublico = (lugar) => {
   return datos;
 };
 
-// GET /api/lugares
-// Consulta pública de lugares aprobados y activos.
-// Filtros opcionales: ?tipo=agencia y ?q=banco
 exports.listarPublicos = async (req, res) => {
   try {
     const { tipo, q } = req.query;
@@ -110,8 +103,6 @@ exports.listarPublicos = async (req, res) => {
   }
 };
 
-// GET /api/lugares/:id
-// Consulta pública del detalle, solo si está aprobado y activo.
 exports.obtenerPublicoPorId = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -160,9 +151,6 @@ exports.obtenerPublicoPorId = async (req, res) => {
   }
 };
 
-// POST /api/lugares 
-// El administrador crea lugares aprobados 
-// El registrador crea lugares pendientes 
 exports.crear = async (req, res) => {
   try {
     const usuario = req.usuario;
@@ -265,9 +253,6 @@ exports.crear = async (req, res) => {
   }
 };
 
-// PUT /api/lugares/:id
-// Administrador: puede editar cualquier lugar 
-// Registrador: solo puede editar sus propios lugares pendientes 
 exports.actualizar = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -407,7 +392,6 @@ exports.actualizar = async (req, res) => {
       }
     }
 
-    // Comprobamos que las referencias resultantes existan.
     const entidadId = cambios.entidad_id ?? lugar.entidad_id;
     const categoriaId = cambios.categoria_id ?? lugar.categoria_id;
     const ubicacionId = cambios.ubicacion_id ?? lugar.ubicacion_id;
@@ -430,8 +414,6 @@ exports.actualizar = async (req, res) => {
       });
     }
 
-    // Repetimos las condiciones del registrador en la actualización.
-    // Así no se actualiza si dejó de pertenecerle o ya no está pendiente.
     const condiciones = { id };
 
     if (usuario.rol === 'registrador') {
@@ -471,8 +453,6 @@ exports.actualizar = async (req, res) => {
   }
 };
 
-// GET /api/lugares/mis-registros
-// Requiere token y rol registrador
 exports.misRegistros = async (req, res) => {
   try {
     const usuario = req.usuario;
@@ -536,8 +516,6 @@ exports.misRegistros = async (req, res) => {
   }
 };
 
-// GET /api/lugares/admin/pendientes
-// El administrador consulta los lugares que esperan revisión.
 exports.listarPendientes = async (req, res) => {
   try {
     const registros = await Lugar.findAll({
@@ -584,8 +562,49 @@ exports.listarPendientes = async (req, res) => {
   }
 };
 
-// PATCH /api/lugares/:id/revision
-// El administrador aprueba un registro pendiente.
+exports.adminListarTodos = async (req, res) => {
+  try {
+    const registros = await Lugar.findAll({
+      attributes: [
+        'id',
+        'nombre',
+        'entidad_id',
+        'categoria_id',
+        'tipo',
+        'ubicacion_id',
+        'direccion',
+        'latitud',
+        'longitud',
+        'creado_por',
+        'estado_revision',
+        'activo',
+        'createdAt',
+        'updatedAt'
+      ],
+      include: [
+        ...incluirDatosRelacionados,
+        {
+          model: Usuario,
+          as: 'creador',
+          attributes: ['id', 'nombre', 'email']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    return res.status(200).json({
+      total: registros.length,
+      registros
+    });
+  } catch (error) {
+    console.error('Error al listar todos los lugares para admin:', error.name);
+
+    return res.status(500).json({
+      message: 'Error interno al consultar todos los lugares'
+    });
+  }
+};
+
 exports.aprobar = async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -626,8 +645,6 @@ exports.aprobar = async (req, res) => {
   }
 };
 
-// PATCH /api/lugares/:id/estado
-// El administrador puede activar o desactivar un lugar
 exports.cambiarEstado = async (req, res) => {
   try {
     const id = Number(req.params.id);
