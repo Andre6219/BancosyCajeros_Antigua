@@ -1,4 +1,8 @@
-require('dotenv').config();
+const path = require('path');
+
+require('dotenv').config({
+  path: path.resolve(__dirname, '../.env')
+});
 
 module.exports = {
   development: {
@@ -9,7 +13,10 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: false
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     },
     logging: false
   },
@@ -21,7 +28,10 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: false
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     },
     logging: false
   },
@@ -33,7 +43,10 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'postgres',
     dialectOptions: {
-      ssl: false
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     },
     logging: false
   }
