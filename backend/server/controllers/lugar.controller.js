@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const estaDentroDeAntigua = require('../validar-antigua');
 const {
   Lugar,
   Entidad,
@@ -95,7 +96,11 @@ exports.listarPublicos = async (req, res) => {
       order: [['nombre', 'ASC']]
     });
 
-    const lugares = resultados.map(prepararLugarPublico);
+    const lugares = resultados
+      .filter((lugar) =>
+        estaDentroDeAntigua(Number(lugar.latitud), Number(lugar.longitud))
+      )
+      .map(prepararLugarPublico);
 
     return res.status(200).json({
       total: lugares.length,
@@ -142,7 +147,13 @@ exports.obtenerPublicoPorId = async (req, res) => {
       include: incluirDatosRelacionados
     });
 
-    if (!resultado) {
+    if (
+      !resultado ||
+      !estaDentroDeAntigua(
+        Number(resultado.latitud),
+        Number(resultado.longitud)
+      )
+    ) {
       return res.status(404).json({
         message: 'Lugar no encontrado'
       });
@@ -213,6 +224,12 @@ exports.crear = async (req, res) => {
     ) {
       return res.status(400).json({
         message: 'Revisa los datos del lugar y sus coordenadas'
+      });
+    }
+
+    if (!estaDentroDeAntigua(lat, lng)) {
+      return res.status(400).json({
+        message: 'Las coordenadas deben estar dentro del municipio de Antigua Guatemala'
       });
     }
 
@@ -405,6 +422,15 @@ exports.actualizar = async (req, res) => {
 
         cambios[campo] = valor;
       }
+    }
+
+    const latitudFinal = cambios.latitud ?? Number(lugar.latitud);
+    const longitudFinal = cambios.longitud ?? Number(lugar.longitud);
+
+    if (!estaDentroDeAntigua(latitudFinal, longitudFinal)) {
+      return res.status(400).json({
+        message: 'Las coordenadas deben estar dentro del municipio de Antigua Guatemala'
+      });
     }
 
     // Comprobamos que las referencias resultantes existan.
@@ -645,6 +671,14 @@ exports.aprobar = async (req, res) => {
     if (!lugar) {
       return res.status(404).json({
         message: 'Lugar no encontrado'
+      });
+    }
+
+    if (
+      !estaDentroDeAntigua(Number(lugar.latitud), Number(lugar.longitud))
+    ) {
+      return res.status(400).json({
+        message: 'No se puede aprobar: las coordenadas deben estar dentro del municipio de Antigua Guatemala'
       });
     }
 
