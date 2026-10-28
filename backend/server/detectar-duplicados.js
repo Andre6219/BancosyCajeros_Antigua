@@ -23,8 +23,12 @@ const distanciaEnMetros = (lat1, lon1, lat2, lon2) => {
     Math.cos(radianes(lat1)) *
       Math.cos(radianes(lat2)) *
       Math.sin(diferenciaLongitud / 2) ** 2;
+  const aLimitada = Math.min(1, Math.max(0, a));
 
-  return 2 * radioTierra * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return 2 * radioTierra * Math.atan2(
+    Math.sqrt(aLimitada),
+    Math.sqrt(1 - aLimitada)
+  );
 };
 
 const buscarPosiblesDuplicados = async ({
